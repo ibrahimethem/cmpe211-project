@@ -8,7 +8,7 @@ import java.util.Scanner;
  */
 public class Main {
 
-    public static SeparateChainingHashST<String,SeparateChainingHashST<String,Double>> SSST;
+    public static SeparateChainingHashST<String,SeparateChainingHashST<String,Double>> userData;
 
     public static SeparateChainingHashST<String,Double> temp;
 
@@ -21,13 +21,13 @@ public class Main {
 
 
     public static void main(String[] args) {
-        SSST = new SeparateChainingHashST<>(8);
-        temp = new SeparateChainingHashST<>(8);
+        userData = readData();
+        /*temp = new SeparateChainingHashST<>(8);
         temp.put("Star Wars",1.0);
         temp.put("Gladiator",5.0);
         temp.put("LOTR",1.0);
 
-        SSST.put("ilker",temp);
+        userData.put("ilker",temp);
 
         SeparateChainingHashST<String,Double> temp2 = new SeparateChainingHashST<>(8);
         temp = new SeparateChainingHashST<>(8);
@@ -35,23 +35,30 @@ public class Main {
         temp.put("Gladiator",3.5);
         temp.put("LOTR",5.0);
 
-        SSST.put("kadir",temp);
+        userData.put("kadir",temp);
         temp = new SeparateChainingHashST<>(8);
         temp.put("Star Wars",4.6);
         temp.put("Gladiator",2.9);
 
-        SSST.put("ibrahim",temp);
+        userData.put("ibrahim",new SeparateChainingHashST<>());*/
 
 
-        //System.out.println(score(SSST,"ibrahim","LOTR"));
-        //System.out.println(similarity(SSST,"ibrahim","ilker"));
-        System.out.println(sim_pearson(SSST,"ilker","kadir"));
+        //System.out.println(score(userData,"ibrahim","LOTR"));
+        //System.out.println(similarity(userData,"ibrahim","ilker"));
+        //System.out.println(sim_pearson(userData,"ilker","kadir"));
+        //System.out.println(userData.get("ibo") == null);
+        //userData.get("ibo").show();
 
+        System.out.println(sim_pearson(userData,"136","200"));
+        System.out.println(dist(userData,"299","162","1047"));
     }
 
 
-    public static String[][] readData() {
+    //bu dosyayi tarama methodu nerdeyse bitti biraz daha degisiklik yapmaliyiz
+    //todo movilerin idlerini isimleriyle degistirme ve movie isimlerinden bir array olusturma
+    public static SeparateChainingHashST<String,SeparateChainingHashST<String,Double>> readData() {
 
+        SeparateChainingHashST<String,SeparateChainingHashST<String,Double>> tempUserData = new SeparateChainingHashST<>(32);
         String[][] tempDataTable = new String[100000][4];
         try {
             String[] items = new String[100000];
@@ -60,12 +67,23 @@ public class Main {
                 items[i] = scan.nextLine();
                 tempDataTable[i] = items[i].split("\t");
             }
-            System.out.println(items.length);
+
+            for(int i=0;i<tempDataTable.length;i++) {
+                if(tempUserData.get(tempDataTable[i][0]) == null) {
+                    SeparateChainingHashST<String, Double> tempST = new SeparateChainingHashST<>(32);
+                    tempUserData.put(tempDataTable[i][0],tempST);
+                } else {
+                    double myDouble = Double.parseDouble(tempDataTable[i][2]);
+                    tempUserData.get(tempDataTable[i][0]).put(tempDataTable[i][1],myDouble);
+                }
+            }
+
+
         } catch (Exception e){
             e.printStackTrace();
         }
 
-        return tempDataTable;
+        return tempUserData;
 
     }
 
@@ -93,16 +111,19 @@ public class Main {
         return Math.pow((score1 - score2),2);
     }
 
+    //intersection methodunda degisiklikler yaptim alinan verileri kullanabilmek icin
+    //todo suanda movilerin idlerine gore bakiyor bu id leri normal isimlerine cevirdigimizde bu method calismiyicak
+    private static int interCounter = 0;
     public static String[] intersection (SeparateChainingHashST<String, SeparateChainingHashST<String, Double> > data, String person1, String person2) {
-        String[] tempSi = new String[movies.length];
-        int counter = 0;
-        for(int i=0;i<movies.length;i++) {
-            if(data.get(person1).get(movies[i]) != null && data.get(person2).get(movies[i]) != null) {
-                tempSi[counter] = movies[i];
-                counter++;
+        String[] tempSi = new String[1682];
+        for(int i=0;i<tempSi.length;i++) {
+            String movieID = "" + (i+1);
+            if(data.get(person1).get(movieID) != null && data.get(person2).get(movieID) != null) {
+                tempSi[interCounter] = movieID;
+                interCounter++;
             }
         }
-        String[] si = new String[counter];
+        String[] si = new String[interCounter];
         for(int i=0;i<si.length;i++) {
             si[i] = tempSi[i];
         }
@@ -118,7 +139,9 @@ public class Main {
         double sum2sq = 0;
         double pSum = 0;
 
-        if(n == 0) { return 0; }
+        if(n == 0) {
+            System.out.println("n = 0");
+            return 0; }
 
         for(int i=0;i<si.length;i++) {
             sum1 += mySSST.get(person1).get(si[i]);
@@ -131,6 +154,7 @@ public class Main {
         double den = Math.pow((sum1sq - Math.pow(sum1,2)/n) * (sum2sq - Math.pow(sum2,2)/n),0.5);
 
         if(den == 0) {
+            System.out.println("den = 0");
             return 0;
         }
 
