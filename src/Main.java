@@ -8,9 +8,9 @@ import java.util.Scanner;
  */
 public class Main {
 
-    public static LinearProbingHashST<String,LinearProbingHashST<String,Double>> SSST;
+    public static SeparateChainingHashST<String,SeparateChainingHashST<String,Double>> SSST;
 
-    public static LinearProbingHashST<String,Double> temp;
+    public static SeparateChainingHashST<String,Double> temp;
 
     public static String[] movies = {
             "Star Wars", "Gladiator","LOTR"};
@@ -18,23 +18,25 @@ public class Main {
     public static String[] persons = {
             "ilker","kadir","ibrahim"
     };
+
+
     public static void main(String[] args) {
-        SSST = new LinearProbingHashST<>();
-        temp = new LinearProbingHashST<>();
+        SSST = new SeparateChainingHashST<>(8);
+        temp = new SeparateChainingHashST<>(8);
         temp.put("Star Wars",1.0);
         temp.put("Gladiator",5.0);
         temp.put("LOTR",1.0);
 
         SSST.put("ilker",temp);
 
-        LinearProbingHashST<String,Double> temp2 = new LinearProbingHashST<>();
-        temp = new LinearProbingHashST<>();
+        SeparateChainingHashST<String,Double> temp2 = new SeparateChainingHashST<>(8);
+        temp = new SeparateChainingHashST<>(8);
         temp.put("Star Wars",4.0);
         temp.put("Gladiator",3.5);
         temp.put("LOTR",5.0);
 
         SSST.put("kadir",temp);
-        temp = new LinearProbingHashST<>();
+        temp = new SeparateChainingHashST<>(8);
         temp.put("Star Wars",4.6);
         temp.put("Gladiator",2.9);
 
@@ -46,6 +48,7 @@ public class Main {
         System.out.println(sim_pearson(SSST,"ilker","kadir"));
 
     }
+
 
     public static String[][] readData() {
 
@@ -66,7 +69,7 @@ public class Main {
 
     }
 
-    public static double similarity(LinearProbingHashST<String, LinearProbingHashST<String, Double> > data, String person1, String person2){
+    public static double similarity(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String person1, String person2){
         double distance = 0.0;
         String[] common = intersection(data,person1,person2);
         if(common.length == 0) { return 0; }
@@ -82,7 +85,7 @@ public class Main {
         return 1.0/ (1.0 + Math.pow(distance,0.5));
     }
 
-    public static double dist(LinearProbingHashST<String, LinearProbingHashST<String, Double> > data, String person1, String person2, String movie){
+    public static double dist(SeparateChainingHashST<String, SeparateChainingHashST<String, Double> > data, String person1, String person2, String movie){
 
         double score1 = data.get(person1).get(movie);
         double score2 = data.get(person2).get(movie);
@@ -90,7 +93,7 @@ public class Main {
         return Math.pow((score1 - score2),2);
     }
 
-    public static String[] intersection (LinearProbingHashST<String, LinearProbingHashST<String, Double> > data, String person1, String person2) {
+    public static String[] intersection (SeparateChainingHashST<String, SeparateChainingHashST<String, Double> > data, String person1, String person2) {
         String[] tempSi = new String[movies.length];
         int counter = 0;
         for(int i=0;i<movies.length;i++) {
@@ -106,7 +109,7 @@ public class Main {
         return si;
     }
 
-    public static double sim_pearson(LinearProbingHashST<String,LinearProbingHashST<String,Double>> mySSST, String person1, String person2) {
+    public static double sim_pearson(SeparateChainingHashST<String, SeparateChainingHashST<String,Double>> mySSST, String person1, String person2) {
         String[] si = intersection(mySSST,person1,person2);
         int n = si.length;
         double sum1 = 0;
@@ -137,8 +140,7 @@ public class Main {
     }
 
 
-
-    public static double score(LinearProbingHashST<String,LinearProbingHashST<String,Double>> mySSST, String person, String movie) {
+    public static double score(SeparateChainingHashST<String, SeparateChainingHashST<String,Double>> mySSST, String person, String movie) {
 
         double totalSim = 0.0;
         double totalSim2 = 0.0;
