@@ -6,18 +6,11 @@ import java.util.Scanner;
  * @author kadir
  * @author ilker
  */
-public class Main {
+public class MovieProgram {
 
     public static SeparateChainingHashST<String,SeparateChainingHashST<String,Double>> userData;
 
     public static SeparateChainingHashST<String,Double> temp;
-
-    public static String[] movies = {
-            "Star Wars", "Gladiator","LOTR"};
-
-    public static String[] persons = {
-            "ilker","kadir","ibrahim"
-    };
 
 
     public static void main(String[] args) {
@@ -51,6 +44,8 @@ public class Main {
 
         System.out.println(sim_pearson(userData,"136","200"));
         System.out.println(dist(userData,"299","162","1047"));
+        //userData.get("33").show();
+        System.out.println(score(userData,"33","101"));
     }
 
 
@@ -70,7 +65,7 @@ public class Main {
 
             for(int i=0;i<tempDataTable.length;i++) {
                 if(tempUserData.get(tempDataTable[i][0]) == null) {
-                    SeparateChainingHashST<String, Double> tempST = new SeparateChainingHashST<>(32);
+                    SeparateChainingHashST<String, Double> tempST = new SeparateChainingHashST<>(8);
                     tempUserData.put(tempDataTable[i][0],tempST);
                 } else {
                     double myDouble = Double.parseDouble(tempDataTable[i][2]);
@@ -87,21 +82,6 @@ public class Main {
 
     }
 
-    public static double similarity(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String person1, String person2){
-        double distance = 0.0;
-        String[] common = intersection(data,person1,person2);
-        if(common.length == 0) { return 0; }
-        for (int i = 0; common[i] != null; i++) {
-            try {
-                distance +=dist(data,person1,person2,common[i]);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return 1.0/ (1.0 + Math.pow(distance,0.5));
-    }
 
     public static double dist(SeparateChainingHashST<String, SeparateChainingHashST<String, Double> > data, String person1, String person2, String movie){
 
@@ -113,9 +93,9 @@ public class Main {
 
     //intersection methodunda degisiklikler yaptim alinan verileri kullanabilmek icin
     //todo suanda movilerin idlerine gore bakiyor bu id leri normal isimlerine cevirdigimizde bu method calismiyicak
-    private static int interCounter = 0;
     public static String[] intersection (SeparateChainingHashST<String, SeparateChainingHashST<String, Double> > data, String person1, String person2) {
         String[] tempSi = new String[1682];
+        int interCounter = 0;
         for(int i=0;i<tempSi.length;i++) {
             String movieID = "" + (i+1);
             if(data.get(person1).get(movieID) != null && data.get(person2).get(movieID) != null) {
@@ -123,6 +103,7 @@ public class Main {
                 interCounter++;
             }
         }
+        System.out.println(interCounter);
         String[] si = new String[interCounter];
         for(int i=0;i<si.length;i++) {
             si[i] = tempSi[i];
@@ -164,16 +145,34 @@ public class Main {
     }
 
 
+    public static double similarity(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String person1, String person2){
+        double distance = 0.0;
+        String[] common = intersection(data,person1,person2);
+        if(common.length == 0) { return 0; }
+        for (int i = 0; i<common.length; i++) {
+            //System.out.println(i);
+            try {
+                distance +=dist(data,person1,person2,common[i]);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return 1.0/ (1.0 + Math.pow(distance,0.5));
+    }
+
     public static double score(SeparateChainingHashST<String, SeparateChainingHashST<String,Double>> mySSST, String person, String movie) {
 
         double totalSim = 0.0;
         double totalSim2 = 0.0;
-        for(int i=0;i<persons.length;i++) {
-            if(persons[i].equals(person)) {
+        for(int i=1;i<=943;i++) {
+            String personID = "" + i;
+            if(personID.equals(person)) {
                 continue;
-            } else {
-                totalSim += similarity(mySSST,person,persons[i]) * mySSST.get(persons[i]).get(movie);
-                totalSim2 += similarity(mySSST,person,persons[i]);
+            } else if(mySSST.get(personID).get(movie) != null) {
+                totalSim += similarity(mySSST,person,personID) * mySSST.get(personID).get(movie);
+                totalSim2 += similarity(mySSST,person,personID);
             }
         }
 
