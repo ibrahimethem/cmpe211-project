@@ -1,4 +1,6 @@
 import java.io.FileInputStream;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -11,28 +13,26 @@ public class MovieProgram {
     public static SeparateChainingHashST<String,SeparateChainingHashST<String,Double>> userData;
 
     public static SeparateChainingHashST<String,Double> temp;
-
+    public static int personNumber =943;
+    public static int moviesNumber = 1682;
 
     public static void main(String[] args) {
+
         userData = readData();
         /*temp = new SeparateChainingHashST<>(8);
         temp.put("Star Wars",1.0);
         temp.put("Gladiator",5.0);
         temp.put("LOTR",1.0);
-
         userData.put("ilker",temp);
-
         SeparateChainingHashST<String,Double> temp2 = new SeparateChainingHashST<>(8);
         temp = new SeparateChainingHashST<>(8);
         temp.put("Star Wars",4.0);
         temp.put("Gladiator",3.5);
         temp.put("LOTR",5.0);
-
         userData.put("kadir",temp);
         temp = new SeparateChainingHashST<>(8);
         temp.put("Star Wars",4.6);
         temp.put("Gladiator",2.9);
-
         userData.put("ibrahim",new SeparateChainingHashST<>());*/
 
 
@@ -42,6 +42,8 @@ public class MovieProgram {
         //System.out.println(userData.get("ibo") == null);
         //userData.get("ibo").show();
 
+
+        //topMatches(userData, "130", 5);
         System.out.println(sim_pearson(userData,"136","200"));
         System.out.println(dist(userData,"299","162","1047"));
         //userData.get("33").show();
@@ -178,4 +180,38 @@ public class MovieProgram {
 
         return totalSim/totalSim2;
     }
+
+    public static void topMatches(SeparateChainingHashST<String, SeparateChainingHashST<String,Double>> mySSST,String person,int n) {
+
+        double[] temp = new double[personNumber];
+        temp[personNumber-1]=0;
+        SeparateChainingHashST<Double,String> scores = new SeparateChainingHashST<>();
+        for (int i = 0; i < personNumber; i++) {
+            String personID = "" + i+1;
+            if (personID.equals(person) ) {
+                continue;
+            }
+            else {
+                double sim = similarity(mySSST, person, personID);
+                scores.put(sim, personID);
+                temp[i] = sim;
+            }
+        }
+        Arrays.sort(temp);
+        double[] temp2 = new double[n];
+
+        for (int i = 0; i < temp2.length; i++) {
+            temp2[i] = temp[temp.length - i -1];
+            System.out.println(scores.get(temp2[i] ) )  ;
+        }
+
+
+
+
+    }
+
+
+
+
+
 }
