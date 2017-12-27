@@ -19,35 +19,11 @@ public class MovieProgram {
     public static void main(String[] args) {
 
         userData = readData();
-        /*temp = new SeparateChainingHashST<>(8);
-        temp.put("Star Wars",1.0);
-        temp.put("Gladiator",5.0);
-        temp.put("LOTR",1.0);
-        userData.put("ilker",temp);
-        SeparateChainingHashST<String,Double> temp2 = new SeparateChainingHashST<>(8);
-        temp = new SeparateChainingHashST<>(8);
-        temp.put("Star Wars",4.0);
-        temp.put("Gladiator",3.5);
-        temp.put("LOTR",5.0);
-        userData.put("kadir",temp);
-        temp = new SeparateChainingHashST<>(8);
-        temp.put("Star Wars",4.6);
-        temp.put("Gladiator",2.9);
-        userData.put("ibrahim",new SeparateChainingHashST<>());*/
+     
 
 
-        //System.out.println(score(userData,"ibrahim","LOTR"));
-        //System.out.println(similarity(userData,"ibrahim","ilker"));
-        //System.out.println(sim_pearson(userData,"ilker","kadir"));
-        //System.out.println(userData.get("ibo") == null);
-        //userData.get("ibo").show();
-
-
-        //topMatches(userData, "130", 5);
-        System.out.println(sim_pearson(userData,"136","200"));
-        System.out.println(dist(userData,"299","162","1047"));
-        //userData.get("33").show();
-        System.out.println(score(userData,"33","101"));
+        topMatches(userData, "130", 10);
+       
     }
 
 
@@ -105,7 +81,7 @@ public class MovieProgram {
                 interCounter++;
             }
         }
-        System.out.println(interCounter);
+        //System.out.println(interCounter);
         String[] si = new String[interCounter];
         for(int i=0;i<si.length;i++) {
             si[i] = tempSi[i];
@@ -123,7 +99,7 @@ public class MovieProgram {
         double pSum = 0;
 
         if(n == 0) {
-            System.out.println("n = 0");
+            //System.out.println("n = 0");
             return 0; }
 
         for(int i=0;i<si.length;i++) {
@@ -137,7 +113,7 @@ public class MovieProgram {
         double den = Math.pow((sum1sq - Math.pow(sum1,2)/n) * (sum2sq - Math.pow(sum2,2)/n),0.5);
 
         if(den == 0) {
-            System.out.println("den = 0");
+           // System.out.println("den = 0");
             return 0;
         }
 
@@ -184,33 +160,83 @@ public class MovieProgram {
     public static void topMatches(SeparateChainingHashST<String, SeparateChainingHashST<String,Double>> mySSST,String person,int n) {
 
         double[] temp = new double[personNumber];
+        int[] id = new int[personNumber];
         temp[personNumber-1]=0;
-        SeparateChainingHashST<Double,String> scores = new SeparateChainingHashST<>();
+       
+        SeparateChainingHashST<String,Double> scores = new SeparateChainingHashST<>();
+     
+        
         for (int i = 0; i < personNumber; i++) {
-            String personID = "" + i+1;
+            String personID = "" + (i+1);
+            id[i]=i+1;
             if (personID.equals(person) ) {
                 continue;
             }
             else {
                 double sim = similarity(mySSST, person, personID);
-                scores.put(sim, personID);
+                scores.put(personID, sim);
                 temp[i] = sim;
+                
             }
         }
-        Arrays.sort(temp);
-        double[] temp2 = new double[n];
+        
+        insertionSort(temp,id);
+        
 
-        for (int i = 0; i < temp2.length; i++) {
-            temp2[i] = temp[temp.length - i -1];
-            System.out.println(scores.get(temp2[i] ) )  ;
+    
+        for(int i=0;i<n;i++) {
+        
+       
+        	System.out.println(id[id.length-i-1] + " "+ temp[id.length-i-1]);
+        
         }
-
-
-
+        
+        
+       
 
     }
 
 
+    public static void insertionSort(double[] a,int[] b,int h) { // Sort a[] into increasing order.
+        int N = a.length;        
+        // h-sort the array.
+        for (int i = h; i < N; i++) { // Insert a[i] among a[i-h], a[i-2*h], a[i-3*h]... .
+            for (int j = i; j >= h && less(a[j], a[j - h]); j -= h) {
+                //Exchanges takes places between every h distant pairs, not only adjacent items
+                exchange(a, j, j - h);
+                exchange2(b, i, j-h);
+            }
+        }
+    }
+     /**
+     * Here exchange takes place for only adjacent items.
+     * We obtain the original insertion sort
+     * @param a 
+     */
+    public static void insertionSort(double[] a,int[]b) { // Sort a[] into increasing order.
+        insertionSort(a,b,1);
+    }
+    
+    private static boolean less(Comparable v, Comparable w) {
+        return v.compareTo(w) < 0;
+    }
+
+    /**
+     * Helper Function to swap items
+     * @param a
+     * @param i
+     * @param j 
+     */
+    private static void exchange(double[] a, int i, int j) {
+        double t = a[i];
+        a[i] = a[j];
+        a[j] = t;
+    }
+    private static void exchange2(int[] a, int i, int j) {
+        int t = a[i];
+        a[i] = a[j];
+        a[j] =  t;
+    }
 
 
 
