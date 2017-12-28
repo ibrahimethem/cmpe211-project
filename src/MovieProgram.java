@@ -10,18 +10,30 @@ import java.util.Scanner;
 public class MovieProgram {
 
     public static SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> userData;
+    public static SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> movieData;
+
+    private static SeparateChainingHashST<String,String> movies;
 
     public static SeparateChainingHashST<String, Double> temp;
-    public static int personNumber = 943;
-    public static int moviesNumber = 1682;
+    public static int personNumber = userData.getN();
+    public static int moviesNumber = movieData.getN();
 
     public static void main(String[] args) {
 
         userData = readData();
+        movieData = transformPrefs(userData);
+        //movieData.get("182").show();
 
+        System.out.println(userData.getN());
+        System.out.println(movieData.getN());
+
+        //System.out.println(intersection(userData,"200","205").length);
+        //System.out.println(similarity(movieData,"300","305"));
+
+        //topMatches(movieData,"182",10);
         //topMatches(userData, "130", 10).show();
 
-        getRecommendation(userData,"250");
+        //getRecommendation(userData,"250");
 
     }
 
@@ -29,6 +41,7 @@ public class MovieProgram {
     //bu dosyayi tarama methodu nerdeyse bitti biraz daha degisiklik yapmaliyiz
     public static SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> readData() {
 
+        movies = new SeparateChainingHashST<>();
         SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> tempUserData = new SeparateChainingHashST<>(32);
         String[][] tempDataTable = new String[100000][4];
         try {
@@ -69,7 +82,9 @@ public class MovieProgram {
 
 
     public static String[] intersection(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String person1, String person2) {
-        String[] tempSi = new String[1682];
+
+
+        String[] tempSi = new String[data.getN()];
         int interCounter = 0;
         for (int i = 0; i < tempSi.length; i++) {
             String movieID = "" + (i + 1);
@@ -84,6 +99,8 @@ public class MovieProgram {
             si[i] = tempSi[i];
         }
         return si;
+
+
     }
 
     public static double sim_pearson(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST, String person1, String person2) {
@@ -158,6 +175,7 @@ public class MovieProgram {
 
     public static SeparateChainingHashST topMatches(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST, String person, int n) {
 
+
         double[] temp = new double[personNumber];
         int[] id = new int[personNumber];
         temp[personNumber-1]=0;
@@ -182,13 +200,49 @@ public class MovieProgram {
 
         insertionSort(temp,id);
         for(int i=0;i<n;i++) {
-            //System.out.println(id[id.length-i-1] + " "+ temp[id.length-i-1]);
+            System.out.println(id[id.length-i-1] + " "+ temp[id.length-i-1]);
             String personID = "" + id[id.length-i-1];
             resultScore.put(personID,temp[id.length-i-1]);
         }
 
         return resultScore;
     }
+    public static SeparateChainingHashST topMatches(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST, String movie, int n,int m) {
+
+        double[] temp = new double[moviesNumber];
+        int[] id = new int[moviesNumber];
+        temp[moviesNumber-1]=0;
+
+        SeparateChainingHashST<String,Double> scores = new SeparateChainingHashST<>(1);
+        SeparateChainingHashST<String,Double> resultScore = new SeparateChainingHashST<>(1);
+
+
+        for (int i = 0; i < moviesNumber; i++) {
+            m=0;
+
+            String movieID = "" + (i+1);
+            id[i]=i+1;
+            if (movieID.equals(movie) ) {
+                continue;
+            }
+            else {
+                double sim = similarity(mySSST, movie, movieID);
+                scores.put(movieID, sim);
+                temp[i] = sim;
+
+            }
+        }
+
+        insertionSort(temp,id);
+        for(int i=0;i<n;i++) {
+            System.out.println(id[id.length-i-1] + " "+ temp[id.length-i-1]);
+            String personID = "" + id[id.length-i-1];
+            resultScore.put(personID,temp[id.length-i-1]);
+        }
+
+        return resultScore;
+    }
+
 
     public static void getRecommendation(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST, String person) {
         SeparateChainingHashST<String, Double> totals = new SeparateChainingHashST<>(2);
@@ -247,6 +301,23 @@ public class MovieProgram {
             //System.out.println(temp[temp.length - 1 - i]);
         }
 
+    }
+    public static SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> transformPrefs (SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST){
+        SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> result = new SeparateChainingHashST<>();
+        SeparateChainingHashST<String,Double> temp = new SeparateChainingHashST<>();
+        for (int i=0;i<personNumber;i++){
+            String personID = "" + (i+1);
+            for (int j=0;j<moviesNumber;j++) {
+                String moviesID = "" + (j+1);
+                if(mySSST.get(personID).get(moviesID) != null) {
+                    temp.put(personID,mySSST.get(personID).get(moviesID));
+                    result.put(moviesID,temp);
+                }
+            }
+        }
+
+
+        return result;
     }
 
 
