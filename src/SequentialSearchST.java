@@ -41,6 +41,9 @@ public class SequentialSearchST<Key, Value> {
         return null; // search miss
     }
 
+
+
+
     /////////////////////////////////////////////////////
     // Analysis of INSERTION Algorithm
     //      One loop : Order(n)
@@ -57,10 +60,11 @@ public class SequentialSearchST<Key, Value> {
 
     /////////////////////////////////////////////////////
     public void show() {
+        System.out.print("[");
         for (Node x = first; x != null; x = x.next) {
-            System.out.print("-> (" + x.key + ": " + x.val + ")");
+            System.out.print(" (" + x.key + ": " + x.val + "),");
         }
-        System.out.println("\n");
+        System.out.println("]\n");
     }
 
     /**
