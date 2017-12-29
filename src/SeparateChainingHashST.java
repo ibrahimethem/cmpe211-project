@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 
+import java.util.ArrayList;
+
 /**
  *
  */
@@ -13,15 +15,18 @@ public class SeparateChainingHashST<Key, Value> {
     private int M; // hash table size
     private SequentialSearchST<Key, Value>[] st; // array of ST objects
 
+    private ArrayList<Key> keys;
+
     public SeparateChainingHashST() {
         // this code is about a factor of 1,000 faster than SequentialSearchST
-        this(16); // default value for M
+        this(256); // default value for M
     }
 
     public SeparateChainingHashST(int M) { // Create M linked lists.
         this.M = M;
         // We need a cast because Java prohibits arrays with generics.
         st = (SequentialSearchST<Key, Value>[]) new SequentialSearchST[M];
+        keys = new ArrayList<Key>();
         for (int i = 0; i < M; i++) {
             st[i] = new SequentialSearchST();
         }
@@ -38,6 +43,7 @@ public class SeparateChainingHashST<Key, Value> {
     public void put(Key key, Value val) {
         if (st[hash(key)].get(key) == null) {
             N++;
+            keys.add(key);
         }
         st[hash(key)].put(key, val);
     }
@@ -59,6 +65,15 @@ public class SeparateChainingHashST<Key, Value> {
 
     public int getN() {
         return N;
+    }
+
+    public Object[] getKeys() {
+        Object[] tempValues = new Object[keys.size()];
+
+        for(int i = 0; i< keys.size(); i++) {
+            tempValues[i] = keys.get(i);
+        }
+        return tempValues;
     }
 
     /////////////////////////////////////////////////////
