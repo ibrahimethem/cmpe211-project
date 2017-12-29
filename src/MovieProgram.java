@@ -1,5 +1,4 @@
 import java.io.FileInputStream;
-import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -15,19 +14,18 @@ public class MovieProgram {
     private static SeparateChainingHashST<Integer,String> movies;
     private static SeparateChainingHashST<Integer,String> people;
 
-    public static SeparateChainingHashST<String, Double> temp;
-    public static int personNumber = 1000;
-    public static int moviesNumber = 1000;
 
     public static void main(String[] args) {
 
         readData();
-        //movieData = transformPrefs(userData);
 
-        //topMatches(movieData,movies.get(158),10).show();
-        //topMatches(userData,"590",50).show();
-        //getRecommendation(userData,"130").show();
-        calculateSimilarItems(movieData,5).show();
+        SeparateChainingHashST<String,SeparateChainingHashST<String, Double>> itemSimilarity = calculateSimilarItems(movieData,5);
+        Object[] itemSim = itemSimilarity.getKeys();
+
+        for (int i=0;i<itemSim.length;i++) {
+            System.out.printf(itemSim[i] + " : ");
+            itemSimilarity.get((String)itemSim[i]).show();
+        }
 
 
     }
@@ -106,16 +104,15 @@ public class MovieProgram {
         for (int i = 0; i < tempSi.length; i++) {
             //String itemID = movies.get(i+1);
             String itemID;
-            if(true) {
-                if (data.getN() == movieData.getN()) {
-                    itemID = "" + (i + 1);
-                } else if (data.getN() == userData.getN()) {
-                    itemID = movies.get(i + 1);
-                } else {
-                    System.out.println("error in intersection method");
-                    continue;
-                }
+            if (data.getN() == movieData.getN()) {
+                itemID = "" + (i + 1);
+            } else if (data.getN() == userData.getN()) {
+                itemID = movies.get(i + 1);
+            } else {
+                System.out.println("error in intersection method");
+                continue;
             }
+
             if (data.get(item1).get(itemID) != null && data.get(item2).get(itemID) != null) {
                 tempSi[interCounter] = itemID;
                 interCounter++;
@@ -183,7 +180,7 @@ public class MovieProgram {
 
         double totalSim = 0.0;
         double totalSim2 = 0.0;
-        for (int i = 1; i <= userData.getN(); i++) {
+        for (int i = 1; i <= data.getN(); i++) {
             String personID = "" + i;
             if (personID.equals(person)) {
                 continue;
@@ -243,8 +240,8 @@ public class MovieProgram {
 
 
     public static SeparateChainingHashST<String,Double> getRecommendation(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST, String person) {
-        SeparateChainingHashST<String, Double> totals = new SeparateChainingHashST<>(4);
-        SeparateChainingHashST<String, Double> simSums = new SeparateChainingHashST<>(4);
+        SeparateChainingHashST<String, Double> totals = new SeparateChainingHashST<>();
+        SeparateChainingHashST<String, Double> simSums = new SeparateChainingHashST<>();
 
         for(int i=0;i<userData.getN();i++) {
             String personID = "" + (i + 1);
@@ -270,7 +267,7 @@ public class MovieProgram {
             }
         }
 
-        SeparateChainingHashST<String, Double> rankings = new SeparateChainingHashST<>(4);
+        SeparateChainingHashST<String, Double> rankings = new SeparateChainingHashST<>();
         Object[] temp = new Object[movies.getN()];
         //int tempCounter = 0;
 
@@ -316,7 +313,7 @@ public class MovieProgram {
         for (int i=0;i<itemPrefs.getN();i++) {
             String itemID = movies.get(i+1);
             c++;
-            if (c%2 == 0) {
+            if (c%10 == 0) {
                 System.out.println(c + "/"+ itemPrefs.getN());
             }
 
