@@ -9,13 +9,13 @@
  */
 public class SeparateChainingHashST<Key, Value> {
 
-    private int N; // number of key-value pairs
+    private int N = 0; // number of key-value pairs
     private int M; // hash table size
     private SequentialSearchST<Key, Value>[] st; // array of ST objects
 
     public SeparateChainingHashST() {
         // this code is about a factor of 1,000 faster than SequentialSearchST
-        this(997); // default value for M
+        this(16); // default value for M
     }
 
     public SeparateChainingHashST(int M) { // Create M linked lists.
@@ -36,6 +36,9 @@ public class SeparateChainingHashST<Key, Value> {
     }
 
     public void put(Key key, Value val) {
+        if (st[hash(key)].get(key) == null) {
+            N++;
+        }
         st[hash(key)].put(key, val);
     }
 
@@ -44,6 +47,7 @@ public class SeparateChainingHashST<Key, Value> {
 
         int i = hash(key);
         if (st[i].get(key) != null)
+            N--;
             st[i].delete(key);
 
     }
@@ -52,10 +56,15 @@ public class SeparateChainingHashST<Key, Value> {
             st[i].show();
         }
     }
+
+    public int getN() {
+        return N;
+    }
+
     /////////////////////////////////////////////////////
     public static void main(String[] args) {
         SeparateChainingHashST<String, Integer> st;
-        st = new SeparateChainingHashST<>(4);
+        st = new SeparateChainingHashST<>(16);
 
         String[] keys = {"H", "E", "L", "L", "O", "T", "U", "R"};
         //  0    1    2    3    4
