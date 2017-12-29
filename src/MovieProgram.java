@@ -12,26 +12,36 @@ public class MovieProgram {
     public static SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> userData;
     public static SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> movieData;
 
-    private static SeparateChainingHashST<String,String> movies;
+    private static SeparateChainingHashST<Integer,String> movies;
+    private static SeparateChainingHashST<Integer,String> persons;
 
     public static SeparateChainingHashST<String, Double> temp;
-    public static int personNumber = userData.getN();
-    public static int moviesNumber = movieData.getN();
+    public static int personNumber = 1000;
+    public static int moviesNumber = 1000;
 
     public static void main(String[] args) {
 
-        userData = readData();
+        readData();
         movieData = transformPrefs(userData);
         //movieData.get("182").show();
+        //movieData.get("Crude Oasis, The (1995)").show();
 
-        System.out.println(userData.getN());
-        System.out.println(movieData.getN());
+        //System.out.println(persons.getN());
+
+        //topMatches(movieData,movies.get(301),5).show();
+        //System.out.println(score(userData,"120",movies.get(1000)));
+
+        //System.out.println(userData.getN());
+        //System.out.println(movies.getN());
+        //System.out.println(movieData.getN());
 
         //System.out.println(intersection(userData,"200","205").length);
-        //System.out.println(similarity(movieData,"300","305"));
+        //System.out.println(sim_distance(movieData,"300","305"));
 
         //topMatches(movieData,"182",10);
-        //topMatches(userData, "130", 10).show();
+
+        System.out.println(sim_distance(userData,"111","199"));
+        topMatches(userData, "11", 5).show();
 
         //getRecommendation(userData,"250");
 
@@ -39,11 +49,13 @@ public class MovieProgram {
 
 
     //bu dosyayi tarama methodu nerdeyse bitti biraz daha degisiklik yapmaliyiz
-    public static SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> readData() {
+    public static void readData() {
 
         movies = new SeparateChainingHashST<>();
-        SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> tempUserData = new SeparateChainingHashST<>(32);
+        persons = new SeparateChainingHashST<>();
+        userData = new SeparateChainingHashST<>(32);
         String[][] tempDataTable = new String[100000][4];
+        String[][] tempMoviesTable = new String[1682][3];
         try {
             String[] items = new String[100000];
             Scanner scan = new Scanner(new FileInputStream("u.data"));
@@ -51,23 +63,34 @@ public class MovieProgram {
                 items[i] = scan.nextLine();
                 tempDataTable[i] = items[i].split("\t");
             }
+            //String[][] tempMoviesTable = new String[1682][3];
+            String[] movieItems = new String[1682];
+            Scanner scanItem = new Scanner(new FileInputStream("u.item"));
+            for (int i = 0; scanItem.hasNextLine(); i++) {
+                movieItems[i] = scanItem.nextLine();
+                tempMoviesTable[i] = movieItems[i].split("\\|",3);
+            }
+
+            for(int i=0;i< tempMoviesTable.length;i++) {
+                movies.put(Integer.parseInt(tempMoviesTable[i][0]),tempMoviesTable[i][1]);
+            }
 
             for (int i = 0; i < tempDataTable.length; i++) {
-                if (tempUserData.get(tempDataTable[i][0]) == null) {
-                    SeparateChainingHashST<String, Double> tempST = new SeparateChainingHashST<>(8);
-                    tempUserData.put(tempDataTable[i][0], tempST);
-                } else {
-                    double myDouble = Double.parseDouble(tempDataTable[i][2]);
-                    tempUserData.get(tempDataTable[i][0]).put(tempDataTable[i][1], myDouble);
+                if (userData.get(tempDataTable[i][0]) == null) {
+                    SeparateChainingHashST<String, Double> tempST = new SeparateChainingHashST<>(4);
+                    userData.put(tempDataTable[i][0], tempST);
+                    persons.put(i+1,tempDataTable[i][0]);
                 }
+                double myDouble = Double.parseDouble(tempDataTable[i][2]);
+                userData.get(tempDataTable[i][0]).put(movies.get(Integer.parseInt(tempDataTable[i][1])), myDouble);
+
+
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return tempUserData;
 
     }
 
@@ -81,25 +104,32 @@ public class MovieProgram {
     }
 
 
-    public static String[] intersection(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String person1, String person2) {
-
+    public static String[] intersection(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String item1, String item2) {
 
         String[] tempSi = new String[data.getN()];
         int interCounter = 0;
         for (int i = 0; i < tempSi.length; i++) {
-            String movieID = "" + (i + 1);
-            if (data.get(person1).get(movieID) != null && data.get(person2).get(movieID) != null) {
-                tempSi[interCounter] = movieID;
+            String itemID = movies.get(i+1);
+            /*
+            String itemID;
+            if(data.getN() == movieData.getN()) {
+                itemID = movies.get(i+1);
+            } else if(data.getN() == userData.getN()) {
+                itemID = "" + (i+1);
+            } else {
+                System.out.println("error in intersection method");
+                continue;
+            }*/
+            if (data.get(item1).get(itemID) != null && data.get(item2).get(itemID) != null) {
+                tempSi[interCounter] = itemID;
                 interCounter++;
             }
         }
-        //System.out.println(interCounter);
         String[] si = new String[interCounter];
         for (int i = 0; i < si.length; i++) {
             si[i] = tempSi[i];
         }
         return si;
-
 
     }
 
@@ -113,7 +143,7 @@ public class MovieProgram {
         double pSum = 0;
 
         if (n == 0) {
-            System.out.println("n = 0");
+            System.out.println("no intersection");
             return 0;
         }
 
@@ -128,26 +158,24 @@ public class MovieProgram {
         double den = Math.pow((sum1sq - Math.pow(sum1, 2) / n) * (sum2sq - Math.pow(sum2, 2) / n), 0.5);
 
         if (den == 0) {
-            //System.out.println("den = 0");
+            System.out.println("den = 0");
             return 0;
         }
 
         return num / den;
 
-
     }
 
 
-    public static double similarity(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String person1, String person2) {
+    public static double sim_distance(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String thing1, String thing2) {
         double distance = 0.0;
-        String[] common = intersection(data, person1, person2);
+        String[] common = intersection(data, thing1, thing2);
         if (common.length == 0) {
             return 0;
         }
         for (int i = 0; i < common.length; i++) {
-            //System.out.println(i);
             try {
-                distance += dist(data, person1, person2, common[i]);
+                distance += dist(data, thing1, thing2, common[i]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -156,53 +184,61 @@ public class MovieProgram {
         return 1.0 / (1.0 + Math.pow(distance, 0.5));
     }
 
-    public static double score(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST, String person, String movie) {
+    public static double score(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String person, String movie) {
 
         double totalSim = 0.0;
         double totalSim2 = 0.0;
-        for (int i = 1; i <= 943; i++) {
+        for (int i = 1; i <= userData.getN(); i++) {
             String personID = "" + i;
             if (personID.equals(person)) {
                 continue;
-            } else if (mySSST.get(personID).get(movie) != null) {
-                totalSim += similarity(mySSST, person, personID) * mySSST.get(personID).get(movie);
-                totalSim2 += similarity(mySSST, person, personID);
+            } else if (data.get(personID).get(movie) != null) {
+                totalSim += sim_distance(data, person, personID) * data.get(personID).get(movie);
+                totalSim2 += sim_distance(data, person, personID);
             }
         }
 
         return totalSim / totalSim2;
     }
 
-    public static SeparateChainingHashST topMatches(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST, String person, int n) {
+    public static SeparateChainingHashST topMatches(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String item, int n) {
 
 
-        double[] temp = new double[personNumber];
-        int[] id = new int[personNumber];
-        temp[personNumber-1]=0;
+        double[] temp = new double[data.getN()];
+        int[] id = new int[data.getN()];
+        temp[data.getN()-1]=0;
 
-        SeparateChainingHashST<String,Double> scores = new SeparateChainingHashST<>(1);
+        SeparateChainingHashST<String,Double> scores = new SeparateChainingHashST<>(4);
         SeparateChainingHashST<String,Double> resultScore = new SeparateChainingHashST<>(1);
 
-
-        for (int i = 0; i < personNumber; i++) {
-            String personID = "" + (i+1);
+        for (int i = 0; i<data.getN(); i++) {
+            String itemID = "" + (i+1);
+            /*
+            String itemID;
+            if(data.getN() == movieData.getN()) {
+                itemID = movies.get(i+1);
+            } else if(data.getN() == userData.getN()) {
+                itemID =  "" + (i+1);
+            } else {
+                System.out.println("error in topMatches method");
+                continue;
+            }*/
             id[i]=i+1;
-            if (personID.equals(person) ) {
+            if (itemID.equals(item) ) {
                 continue;
             }
             else {
-                double sim = similarity(mySSST, person, personID);
-                scores.put(personID, sim);
+                double sim = sim_distance(data, item, itemID);
+                scores.put(itemID, sim);
                 temp[i] = sim;
-
             }
         }
 
         insertionSort(temp,id);
         for(int i=0;i<n;i++) {
-            System.out.println(id[id.length-i-1] + " "+ temp[id.length-i-1]);
-            String personID = "" + id[id.length-i-1];
-            resultScore.put(personID,temp[id.length-i-1]);
+            //System.out.println(id[id.length-i-1] + " "+ temp[id.length-i-1]);
+            String itemID = "" + id[id.length-i-1];
+            resultScore.put(itemID,temp[id.length-i-1]);
         }
 
         return resultScore;
@@ -213,20 +249,20 @@ public class MovieProgram {
         int[] id = new int[moviesNumber];
         temp[moviesNumber-1]=0;
 
-        SeparateChainingHashST<String,Double> scores = new SeparateChainingHashST<>(1);
+        SeparateChainingHashST<String,Double> scores = new SeparateChainingHashST<>(16);
         SeparateChainingHashST<String,Double> resultScore = new SeparateChainingHashST<>(1);
 
 
         for (int i = 0; i < moviesNumber; i++) {
             m=0;
 
-            String movieID = "" + (i+1);
+            String movieID = movies.get(i+1);
             id[i]=i+1;
             if (movieID.equals(movie) ) {
                 continue;
             }
             else {
-                double sim = similarity(mySSST, movie, movieID);
+                double sim = sim_distance(mySSST, movie, movieID);
                 scores.put(movieID, sim);
                 temp[i] = sim;
 
@@ -235,7 +271,7 @@ public class MovieProgram {
 
         insertionSort(temp,id);
         for(int i=0;i<n;i++) {
-            System.out.println(id[id.length-i-1] + " "+ temp[id.length-i-1]);
+            //System.out.println(id[id.length-i-1] + " "+ temp[id.length-i-1]);
             String personID = "" + id[id.length-i-1];
             resultScore.put(personID,temp[id.length-i-1]);
         }
@@ -305,17 +341,17 @@ public class MovieProgram {
     public static SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> transformPrefs (SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST){
         SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> result = new SeparateChainingHashST<>();
         SeparateChainingHashST<String,Double> temp = new SeparateChainingHashST<>();
-        for (int i=0;i<personNumber;i++){
+
+        for (int i=0;i<userData.getN();i++){
             String personID = "" + (i+1);
-            for (int j=0;j<moviesNumber;j++) {
-                String moviesID = "" + (j+1);
+            for (int j=0;j<movies.getN();j++) {
+                String moviesID = movies.get(j+1);
                 if(mySSST.get(personID).get(moviesID) != null) {
                     temp.put(personID,mySSST.get(personID).get(moviesID));
                     result.put(moviesID,temp);
                 }
             }
         }
-
 
         return result;
     }
