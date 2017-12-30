@@ -1,93 +1,120 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-import java.util.ArrayList;
-
 /**
+ * Elementary symbol-table (also called dictionary or map) * Sequential search
+ * in an unordered linked list
  *
+ * @author uzaycetin SequentialSearchST
+ * @param <Key>
+ * @param <Value>
  */
-public class SeparateChainingHashST<Key, Value> {
+public class SequentialSearchST<Key, Value> {
 
-    private int N = 0; // number of key-value pairs
-    private int M; // hash table size
-    private SequentialSearchST<Key, Value>[] st; // array of ST objects
+    // first node in the linked list
+    private Node first;
 
-    private ArrayList<Key> keys;
+    /////////////////////////////////////////////////////
+    // Each node holds
+    //     * key-value pair
+    //     * and a reference to anothe node
+    private class Node { // linked-list node
 
-    public SeparateChainingHashST() {
-        // this code is about a factor of 1,000 faster than SequentialSearchST
-        this(512); // default value for M
-    }
+        Key key;
+        Value val;
+        Node next;
 
-    public SeparateChainingHashST(int M) { // Create M linked lists.
-        this.M = M;
-        // We need a cast because Java prohibits arrays with generics.
-        st = (SequentialSearchST<Key, Value>[]) new SequentialSearchST[M];
-        keys = new ArrayList<Key>();
-        for (int i = 0; i < M; i++) {
-            st[i] = new SequentialSearchST();
+        public Node(Key key, Value val, Node next) {
+            this.key = key;
+            this.val = val;
+            this.next = next;
         }
-    }
-
-    private int hash(Key key) {
-        return (key.hashCode() & 0x7fffffff) % M;
-    }
-
-    public Value get(Key key) {
-        return (Value) st[hash(key)].get(key);
-    }
-
-    public void put(Key key, Value val) {
-        if (st[hash(key)].get(key) == null) {
-            N++;
-            keys.add(key);
-        }
-        st[hash(key)].put(key, val);
-    }
-
-    public void delete(Key key) {
-        if (key == null) return;
-
-        int i = hash(key);
-        if (st[i].get(key) != null)
-            N--;
-            st[i].delete(key);
-
-    }
-    public void show() {
-        for (int i = 0; i < M; i++) {
-            st[i].show();
-        }
-    }
-
-    public int getN() {
-        return N;
-    }
-
-    public Object[] getKeys() {
-        Object[] tempValues = new Object[keys.size()];
-
-        for(int i = 0; i< keys.size(); i++) {
-            tempValues[i] = keys.get(i);
-        }
-        return tempValues;
     }
 
     /////////////////////////////////////////////////////
-    public static void main(String[] args) {
-        SeparateChainingHashST<String, Integer> st;
-        st = new SeparateChainingHashST<>(16);
-
-        String[] keys = {"H", "E", "L", "L", "O", "T", "U", "R"};
-        //  0    1    2    3    4
-
-        for (int i = 0; i < 8; i++) {
-            st.put(keys[i], i);
+    // Analysis of SEARCH Algorithm
+    //      One loop : Order(n)
+    public Value get(Key key) {
+        // starting from the first node, advance one by one
+        for (Node x = first; x != null; x = x.next) {
+            if (key.equals(x.key)) {
+                return x.val; // search hit
+            }
         }
-        st.show();
+        return null; // search miss
+    }
+
+
+
+
+    /////////////////////////////////////////////////////
+    // Analysis of INSERTION Algorithm
+    //      One loop : Order(n)
+    public void put(Key key, Value val) {
+        // starting from the first node, advance one by one
+        for (Node x = first; x != null; x = x.next) {
+            if (key.equals(x.key)) { // Update value if found
+                x.val = val;
+                return;
+            } // Search hit: update val.
+        }
+        first = new Node(key, val, first); // Search miss: add new node to the begining.
+    }
+
+    /////////////////////////////////////////////////////
+    public void show() {
+        System.out.print("[");
+        for (Node x = first; x != null; x = x.next) {
+            System.out.print(" (" + x.key + ": " + x.val + "),");
+        }
+        System.out.println("]\n");
+    }
+
+    /**
+     * Removes the specified key and its associated value from this symbol table
+     * (if the key is in this symbol table).
+     */
+    public void delete(Key key) {
+        if (key != null) {
+            first = delete(first, key);
+        }
+    }
+
+    // delete key in linked list beginning at Node x
+    // warning: function call stack too large if table is large
+    private Node delete(Node x, Key key) {
+        if (x == null) {
+            return null;
+        }
+        if (key.equals(x.key)) {
+            return x.next;
+        }
+        // iterate through the list
+        x.next = delete(x.next, key);
+        return x;
+    }
+
+
+    // This method can not delete last node
+    public void delMiddle(Key key) {
+        // Control for the first node
+        if (key.equals(first.key)) {
+            first = first.next;
+        }
+
+        // Control for the last node
+        // TO-DO
+
+        Node prev = first;
+        while (prev.next != null) {
+            if (key.equals(prev.next.key)) {
+                //System.out.print(key + " found");
+                if (prev.next.next != null)
+                    prev.next = prev.next.next;
+            }
+
+            System.out.print("-> (" + prev.key + ": " + prev.val + ")");
+            prev = prev.next;
+        }
+        System.out.print("LAST-> (" + prev.key + ": " + prev.val + ")");
+        System.out.println("\n");
 
     }
 }
