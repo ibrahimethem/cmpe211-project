@@ -94,50 +94,52 @@ public class MovieProgram {
 
     public static double dist(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String person1, String person2, String movie) {
 
-        double score1 = data.get(person1).get(movie);
-        double score2 = data.get(person2).get(movie);
+        double score1 = data.get(person1).get(movie);// What is the rating that person1 gives to this movie
+        double score2 = data.get(person2).get(movie);//What is the rating that person2 gives to this movie
 
-        return Math.pow((score1 - score2), 2);
+        return Math.pow((score1 - score2), 2);// in order not to return a minus we give square of result	
     }
 
-
+    // It takes 2 ıtem and returns string array that holds cammon movie or user.
     public static String[] intersection(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String item1, String item2) {
 
         String[] tempSi;// = new String[data.getN()];
-        if(data.getN() == movies.getN()) {
+        if(data.getN() == movies.getN()) {//getN method returns data's all value in separateChainning class. If we are dealing with movies then length of
+        	// string array will be length of values in data which is 943
             tempSi = new String[userData.getN()];
-        } else {
+        } else {// if not , length will be movies number in the u.item which is 1682.
             tempSi = new String[movieData.getN()];
         }
         int interCounter = 0;
         for (int i = 0; i < tempSi.length; i++) {
             //String itemID = movies.get(i+1);
-            String itemID;
-            if (data.getN() == movieData.getN()) {
-                itemID = "" + (i + 1);
+            String itemID;// we need to get movie or person in this variable
+            if (data.getN() == movieData.getN()) {// if we call movie then
+                itemID = "" + (i + 1);// we are getting person in here string type
             } else if (data.getN() == userData.getN()) {
                 itemID = movies.get(i + 1);
-            } else {
+            } else {// if we have a diffrent data neither person or movie.
                 System.out.println("error in intersection method");
                 continue;
             }
 
-            if (data.get(item1).get(itemID) != null && data.get(item2).get(itemID) != null) {
-                tempSi[interCounter] = itemID;
-                interCounter++;
+            if (data.get(item1).get(itemID) != null && data.get(item2).get(itemID) != null) {//these two person has to give a rating the movies
+            	// OR the movies has a rating of person.
+                tempSi[interCounter] = itemID;// giving the items into temporary string array
+                interCounter++;// we have count the item can enter this condition . 
             }
         }
         //System.out.println(interCounter);
-        String[] si = new String[interCounter];
-        for (int i = 0; i < si.length; i++) {
-            si[i] = tempSi[i];
+        String[] si = new String[interCounter];// This is the one will be returned. Array length will be interCounter that holds how many movie or person that cammon.
+        for (int i = 0; i < si.length; i++) {//
+            si[i] = tempSi[i];// we could not return tempSi array because of its size
         }
         return si;
 
     }
-
+    // Similarity between two person or movie
     public static double sim_pearson(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST, String person1, String person2) {
-        String[] si = intersection(mySSST, person1, person2);
+        String[] si = intersection(mySSST, person1, person2);// taking those person's cammon movies.
         int n = si.length;
         double sum1 = 0;
         double sum2 = 0;
@@ -149,14 +151,14 @@ public class MovieProgram {
             return 0.0;
         }
 
-        for (int i = 0; i < si.length; i++) {
-            sum1 += mySSST.get(person1).get(si[i]);
-            sum2 += mySSST.get(person2).get(si[i]);
-            sum1sq += Math.pow(mySSST.get(person1).get(si[i]), 2);
+        for (int i = 0; i < si.length; i++) {// and getting into this math equation
+            sum1 += mySSST.get(person1).get(si[i]);// the rating of person1 that gives the cammon movies
+            sum2 += mySSST.get(person2).get(si[i]);//the rating of person2 that gives the cammon movies
+            sum1sq += Math.pow(mySSST.get(person1).get(si[i]), 2);// and the squares
             sum2sq += Math.pow(mySSST.get(person2).get(si[i]), 2);
-            pSum += mySSST.get(person1).get(si[i]) * mySSST.get(person2).get(si[i]);
+            pSum += mySSST.get(person1).get(si[i]) * mySSST.get(person2).get(si[i]);// multiply these two person's rating
         }
-        double num = pSum - (sum1 * sum2 / n);
+        double num = pSum - (sum1 * sum2 / n);// ın order to find sim.
         double den = Math.pow((sum1sq - Math.pow(sum1, 2) / n) * (sum2sq - Math.pow(sum2, 2) / n), 0.5);
 
         if (den == 0) {
@@ -167,16 +169,16 @@ public class MovieProgram {
 
     }
 
-
+    //Similarity between to item which can be movie or user
     public static double sim_distance(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String thing1, String thing2) {
         double distance = 0.0;
-        String[] common = intersection(data, thing1, thing2);
-        if (common.length == 0) {
+        String[] common = intersection(data, thing1, thing2);// In order to find cammon - movie or person - use intersection method. 
+        if (common.length == 0) {// if there is no cammon item then return 0
             return 0;
         }
         for (int i = 0; i < common.length; i++) {
             try {
-                distance += dist(data, thing1, thing2, common[i]);
+                distance += dist(data, thing1, thing2, common[i]);//We are using dist method in order to find distance between these two item
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -191,7 +193,7 @@ public class MovieProgram {
         double totalSim2 = 0.0;
         for (int i = 1; i <= data.getN(); i++) {
             String personID = "" + i;
-            if (personID.equals(person)) {
+            if (personID.equals(person)) {// When the personID -which holds all the person in the loop - is the person, then continue with the other one
                 continue;
             } else if (data.get(personID).get(movie) != null) {
                 totalSim += sim_distance(data, person, personID) * data.get(personID).get(movie);
@@ -201,7 +203,7 @@ public class MovieProgram {
 
         return totalSim / totalSim2;
     }
-
+    //Take a item and returns a most n similar item like it 
     public static SeparateChainingHashST<String,Double> topMatches(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> data, String item, int n) {
 
 
@@ -215,33 +217,38 @@ public class MovieProgram {
             //String itemID = "" + (i+1);
 
             String itemID;
-            if(data.getN() == movieData.getN()) {
+            if(data.getN() == movieData.getN()) {// same with intersection part. if the given data is movieData then scores has user names
+            	// if not scores and resultScore has movie names
                 itemID = movies.get(i+1);
             } else if(data.getN() == userData.getN()) {
                 itemID =  "" + (i+1);
-            } else {
+            } else {// if the given data neither movieData nor userData then give an error
                 System.out.println("error in topMatches method");
                 continue;
             }
             //id[i]=i+1;
-            if (itemID.equals(item) ) {
+            if (itemID.equals(item) ) {// itemID holds the item name in the loop. If the itemID is the item then continue with the other one
                 continue;
             }
             else {
                 //id[i]=i+1;
-                double sim = sim_pearson(data, item, itemID);
-                scores.put(itemID, sim);
+                double sim = sim_pearson(data, item, itemID);//use sim_pearson method in order to calculate similarty with these two item
+                scores.put(itemID, sim);// then put the item with the similarty after that we will be use it
                 //id[i]=i+1;
                 //temp[i] = sim;
             }
         }
 
-        temp = Heap.sort(scores);
+        temp = Heap.sort(scores);// first data is item and the similarity. We are sorting it in order to find Top n movie or person
+        // but it is from small to bigger that we do not want it
         for(int i=0;i<n;i++) {
             //System.out.println(id[id.length-i-1] + " "+ temp[id.length-i-1]);
             //int itemID = id[id.length-i-1];
             resultScore.put((String)temp[temp.length-1-i],scores.get((String)temp[temp.length-1-i]));
-
+            /* Now , temp is object array but we need Strings . Therefore we need to change when we put it.
+             * Start puttin the temp's object from the last one in order reverse array.
+             * Getting scores rating also taking from the last one 
+             */
         }
 
         return resultScore;
@@ -252,56 +259,60 @@ public class MovieProgram {
         SeparateChainingHashST<String, Double> totals = new SeparateChainingHashST<>();
         SeparateChainingHashST<String, Double> simSums = new SeparateChainingHashST<>();
 
-        for(int i=0;i<userData.getN();i++) {
-            String personID = "" + (i + 1);
-            double sim = sim_pearson(mySSST,person,personID);
-            if (personID.equals(person)) {
+        for(int i=0;i<userData.getN();i++) {//userData.getN is person number 
+            String personID = "" + (i + 1);// this holds every person in loop
+            double sim = sim_pearson(mySSST,person,personID);// similarty between person with the others
+            if (personID.equals(person)) {// if the personID is the person then continue with the other one
                 continue;
             } else {
 
-                if(sim<=0) {
+                if(sim<=0) {// sim cannot be minus
                     continue;
                 }
-                for(int j=0;j<movieData.getN();j++) {
-                    String moviesID = movies.get(j+1);
-                    if(mySSST.get(person).get(moviesID) == null && mySSST.get(personID).get(moviesID) != null) {
-                        double score = mySSST.get(personID).get(moviesID);
+                for(int j=0;j<movieData.getN();j++) {// movieData.getN() is movie Number
+                    String moviesID = movies.get(j+1);// this holds movies in loop
+                    if(mySSST.get(person).get(moviesID) == null && mySSST.get(personID).get(moviesID) != null) {// if person does not give point to movie
+                    	// and the other person gives
+                        double score = mySSST.get(personID).get(moviesID);// then holds the rating in score
                         totals.put(moviesID,0.0);
-                        totals.put(moviesID, (totals.get(moviesID) + (sim * score)));
+                        totals.put(moviesID, (totals.get(moviesID) + (sim * score)));// put movie with sim*score number
 
                         simSums.put(moviesID,0.0);
-                        simSums.put(moviesID,simSums.get(moviesID) + sim);
+                        simSums.put(moviesID,simSums.get(moviesID) + sim);// and this summations only similarities
                     }
                 }
             }
         }
 
-        SeparateChainingHashST<String, Double> rankings = new SeparateChainingHashST<>();
-        Object[] temp = new Object[movies.getN()];
+        SeparateChainingHashST<String, Double> rankings = new SeparateChainingHashST<>();// creating a dic
+        Object[] temp = new Object[movies.getN()];// temporary object array with size of movie numer
         //int tempCounter = 0;
 
         for(int i=0;i<movieData.getN();i++) {
 
             String moviesID = movies.get(i+1);
-            if(totals.get(moviesID) == null) {
+            if(totals.get(moviesID) == null) {// if the movie is not in totals then continue with others
                 continue;
             } else {
-                double tempKey = (totals.get(moviesID) / simSums.get(moviesID));
-                rankings.put(moviesID,tempKey);
+                double tempKey = (totals.get(moviesID) / simSums.get(moviesID));// Creating a temporary double that holds Keys of this.
+                rankings.put(moviesID,tempKey);//putting the tempKEy
                 //temp[tempCounter] = tempKey;
                 //tempCounter++;
             }
         }
 
 
-        temp = Heap.sort(rankings);
+        temp = Heap.sort(rankings);// now we are sorting temp Object array from small to bigger.
 
-        SeparateChainingHashST<String,Double> result = new SeparateChainingHashST<>(1);
+        SeparateChainingHashST<String,Double> result = new SeparateChainingHashST<>(1);// the data what we are gonna return
 
         for(int i=0;i<5;i++){
 
             //System.out.println(temp[temp.length - 1 - i]);
             result.put((String)temp[temp.length - 1 - i],rankings.get((String)temp[temp.length - 1 - i]));
+            /*Start putting as String from the last one because we want it from bigger to smaller.
+             
+             */
         }
 
         return result;
@@ -309,7 +320,7 @@ public class MovieProgram {
     }
 
     // todo \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\|||||///////////////////////////////////////
-
+    
     public static SeparateChainingHashST<String,SeparateChainingHashST<String, Double>> calculateSimilarItems(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST, int n) {
         SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> result = new SeparateChainingHashST<>();
 
