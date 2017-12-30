@@ -19,7 +19,7 @@ public class SeparateChainingHashST<Key, Value> {
 
     public SeparateChainingHashST() {
         // this code is about a factor of 1,000 faster than SequentialSearchST
-        this(256); // default value for M
+        this(512); // default value for M
     }
 
     public SeparateChainingHashST(int M) { // Create M linked lists.
