@@ -17,15 +17,24 @@ public class MovieProgram {
 
     public static void main(String[] args) {
 
+        StopWatch time2 = new StopWatch();
         readData();
+        System.out.println("Read data time = (mils) " + time2.elapsedTimeInMilSec());
 
+        StopWatch time1 = new StopWatch();
+        topMatches(userData,"150",10).show();
+
+        System.out.println("Top Matches time = (mils) " +time1.elapsedTimeInMilSec() + "\n");
+
+        StopWatch time3 = new StopWatch();
         SeparateChainingHashST<String,SeparateChainingHashST<String, Double>> itemSimilarity = calculateSimilarItems(movieData,5);
-        Object[] itemSim = itemSimilarity.getKeys();
+        System.out.println("Calculate Similar Items = (Sec) " + time3.elapsedTime());
+        //Object[] itemSim = itemSimilarity.getKeys();
 
-        for (int i=0;i<itemSim.length;i++) {
-            System.out.printf(itemSim[i] + " : ");
-            itemSimilarity.get((String)itemSim[i]).show();
-        }
+        //for (int i=0;i<itemSim.length;i++) {
+            //System.out.printf(itemSim[i] + " : ");
+            //itemSimilarity.get((String)itemSim[i]).show();
+        //}
 
 
     }
@@ -36,8 +45,8 @@ public class MovieProgram {
         movies = new SeparateChainingHashST<>();
         people = new SeparateChainingHashST<>();
 
-        userData = new SeparateChainingHashST<>(512);
-        movieData = new SeparateChainingHashST<>(512);
+        userData = new SeparateChainingHashST<>();
+        movieData = new SeparateChainingHashST<>();
 
         String[][] tempDataTable = new String[100000][4];
         String[][] tempMoviesTable = new String[1682][3];
@@ -61,12 +70,12 @@ public class MovieProgram {
 
             for (int i = 0; i < tempDataTable.length; i++) {
                 if (userData.get(tempDataTable[i][0]) == null) {
-                    SeparateChainingHashST<String, Double> tempST = new SeparateChainingHashST<>(8);
+                    SeparateChainingHashST<String, Double> tempST = new SeparateChainingHashST<>();
                     userData.put(tempDataTable[i][0], tempST);
                     people.put(i+1,tempDataTable[i][0]);
                 }
                 if(movieData.get(movies.get(Integer.parseInt(tempDataTable[i][1]))) == null) {
-                    SeparateChainingHashST<String, Double> tempST = new SeparateChainingHashST<>(8);
+                    SeparateChainingHashST<String, Double> tempST = new SeparateChainingHashST<>();
                     movieData.put(movies.get(Integer.parseInt(tempDataTable[i][1])),tempST);
                 }
                 double myDouble = Double.parseDouble(tempDataTable[i][2]);
@@ -227,7 +236,7 @@ public class MovieProgram {
             }
         }
 
-        temp = insertionSort(scores);
+        temp = Heap.sort(scores);
         for(int i=0;i<n;i++) {
             //System.out.println(id[id.length-i-1] + " "+ temp[id.length-i-1]);
             //int itemID = id[id.length-i-1];
@@ -284,11 +293,8 @@ public class MovieProgram {
             }
         }
 
-        //rankings.show();
 
-        //Arrays.sort(temp);
-
-        temp = insertionSort(rankings);
+        temp = Heap.sort(rankings);
 
         SeparateChainingHashST<String,Double> result = new SeparateChainingHashST<>(1);
 
@@ -364,7 +370,7 @@ public class MovieProgram {
         return result;
     }
 
-
+/*
 
     ////////// INSERTION SORT //////////
 
@@ -385,7 +391,7 @@ public class MovieProgram {
      * Here exchange takes place for only adjacent items.
      * We obtain the original insertion sort
      * @param data
-     */
+     *
     public static Object[] insertionSort(SeparateChainingHashST<String,Double> data) { // Sort a[] into increasing order.
         return insertionSort(data,1);
     }
@@ -399,11 +405,13 @@ public class MovieProgram {
      * @param a
      * @param i
      * @param j
-     */
+     *
     private static void exchange(Object[] a, int i, int j) {
         Object t = a[i];
         a[i] = a[j];
         a[j] = t;
     }
+
+    */
 
 }
