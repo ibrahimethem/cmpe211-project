@@ -320,22 +320,22 @@ public class MovieProgram {
     }
 
     // todo \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\|||||///////////////////////////////////////
-    
+    // Samething with topMatches but for movies.
     public static SeparateChainingHashST<String,SeparateChainingHashST<String, Double>> calculateSimilarItems(SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST, int n) {
-        SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> result = new SeparateChainingHashST<>();
+        SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> result = new SeparateChainingHashST<>();// the dictionary that it will be returned
 
         SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> itemPrefs = movieData;//transformPrefs(mySSST);
 
-        int c=0;
+        int c=0;// as phyton code wants as 100/1664
         for (int i=0;i<itemPrefs.getN();i++) {
-            String itemID = movies.get(i+1);
-            c++;
+            String itemID = movies.get(i+1);// this holds movies in the loop
+            c++;// every time movie change c is gonna increase
             if (c%10 == 0) {
-                System.out.println(c + "/"+ itemPrefs.getN());
+                System.out.println(c + "/"+ itemPrefs.getN());// in the console 
             }
 
-            SeparateChainingHashST<String,Double> scores = topMatches(itemPrefs,itemID,n);
-            result.put(itemID,scores);
+            SeparateChainingHashST<String,Double> scores = topMatches(itemPrefs,itemID,n);// inner dictionary that uses topMatches
+            result.put(itemID,scores);// Put them into result outer dictionary
         }
 
         return result;
@@ -360,25 +360,27 @@ public class MovieProgram {
     }
 
     //todo ////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    // Takes the dictionary that takes person as key and returns dictionary that movie as key.
     public static SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> transformPrefs (SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> mySSST){
-        SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> result = new SeparateChainingHashST<>();
-
-        for (int i=0;i<movies.getN();i++) {
+        SeparateChainingHashST<String, SeparateChainingHashST<String, Double>> result = new SeparateChainingHashST<>();// dictionary that will be returned
+        
+        for (int i=0;i<movies.getN();i++) {//Firstly we have to put all the movie as key and put empty values
             result.put(movies.get(i+1),new SeparateChainingHashST<>(16));
         }
-        for (int i=0;i<userData.getN();i++){
-            String personID = "" + (i+1);
+        for (int i=0;i<userData.getN();i++){// now we have to determine the inner dictionary as user and its rating
+            String personID = "" + (i+1);// this holds all the people in loop
             for (int j=0;j<movies.getN();j++) {
-                String moviesID = movies.get(j+1);
-                if(mySSST.get(personID).get(moviesID) != null) {
-                    result.get(moviesID).put(personID,mySSST.get(personID).get(moviesID));
+                String moviesID = movies.get(j+1);// this holds all the movies in the loop
+                if(mySSST.get(personID).get(moviesID) != null) {// if the rating of the person on this movies is not empty
+                    result.get(moviesID).put(personID,mySSST.get(personID).get(moviesID));//then get the value of result and put the user as first parametre
+                    // and its rating as second.
                 } else {
-                    result.get(moviesID).put(personID,null);
+                    result.get(moviesID).put(personID,null);// if person does not watch the movie then put it as empty.
                 }
             }
         }
 
-        return result;
+        return result;// return result
     }
 
 /*
