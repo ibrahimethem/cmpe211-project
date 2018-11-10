@@ -1,2 +1,2 @@
-# cmpe211-project
-CMPE211 Final Poject
+# cmpe211 - Project
+Istanbul Bilgi University CMPE 211 Final Poject
